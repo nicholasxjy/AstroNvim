@@ -52,6 +52,7 @@ return {
           function() require("telescope.builtin").find_files { hidden = true, no_ignore = true } end,
           desc = "Find all files",
         }
+        maps.n["<Leader>fg"] = { function() require("telescope.builtin").git_files() end, desc = "Find git files" }
         maps.n["<Leader>fh"] = { function() require("telescope.builtin").help_tags() end, desc = "Find help" }
         maps.n["<Leader>fk"] = { function() require("telescope.builtin").keymaps() end, desc = "Find keymaps" }
         maps.n["<Leader>fm"] = { function() require("telescope.builtin").man_pages() end, desc = "Find man" }
@@ -123,6 +124,7 @@ return {
     end
     return {
       defaults = {
+        file_ignore_patterns = { "^%.git[/\\]", "[/\\]%.git[/\\]" },
         git_worktrees = require("astrocore").config.git_worktrees,
         prompt_prefix = get_icon("Selected", 1),
         selection_caret = get_icon("Selected", 1),

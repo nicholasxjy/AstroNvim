@@ -22,6 +22,7 @@ return {
     opt.foldlevelstart = 99 -- start with all code unfolded
     opt.ignorecase = true -- case insensitive searching
     opt.infercase = true -- infer cases in keyword completion
+    opt.jumpoptions = {} -- apply no jumpoptions on startup
     opt.laststatus = 3 -- global statusline
     opt.linebreak = true -- wrap lines at 'breakat'
     opt.mouse = "a" -- enable mouse support
@@ -29,6 +30,7 @@ return {
     opt.preserveindent = true -- preserve indent structure as much as possible
     opt.pumheight = 10 -- height of the pop up menu
     opt.relativenumber = true -- show relative numberline
+    opt.shiftround = true -- round indentation with `>`/`<` to shiftwidth
     opt.shiftwidth = 0 -- number of space inserted for indentation; when zero the 'tabstop' value will be used
     opt.shortmess = vim.tbl_deep_extend("force", vim.opt.shortmess:get(), { s = true, I = true }) -- disable search count wrap and startup messages
     opt.showmode = false -- disable showing modes in command line
