@@ -1,9 +1,45 @@
+local astroui_foldexpr = "v:lua.require'astroui.folding'.foldexpr()"
 return {
   "AstroNvim/astroui",
   lazy = true,
+  specs = {
+    {
+      "AstroNvim/astrocore",
+      opts = {
+        autocmds = {
+          persistent_astroui_foldexpr = {
+            {
+              event = "FileType",
+              callback = function()
+                if require("astrocore.buffer").is_valid() then
+                  if vim.wo[0][0].foldexpr ~= astroui_foldexpr and vim.go.foldexpr == astroui_foldexpr then
+                    vim.wo[0][0].foldexpr = astroui_foldexpr
+                  end
+                end
+              end,
+            },
+          },
+        },
+        options = {
+          opt = {
+            foldcolumn = "1", -- display fold column
+            foldenable = true, -- enable folds
+            foldexpr = astroui_foldexpr, -- set function for calculating folds
+            foldlevel = 99, -- set high foldlevel
+            foldmethod = "expr", -- use `foldexpr` for calculating folds
+            foldtext = "", -- use transparent foldtext
+          },
+        },
+      },
+    },
+  },
   ---@type AstroUIOpts
   opts = {
     colorscheme = "astrotheme",
+    folding = {
+      enabled = function(bufnr) return require("astrocore.buffer").is_valid(bufnr) end,
+      methods = { "lsp", "treesitter", "indent" },
+    },
     icons = {
       ActiveLSP = "",
       ActiveTS = "",
@@ -106,6 +142,23 @@ return {
       Selected = "*",
       Spellcheck = "[SPELL]",
       TabClose = "X",
+    },
+    lazygit = {
+      theme_path = vim.fs.normalize(vim.fn.stdpath "cache" .. "/astroui-lazygit-config.yml"),
+      theme = {
+        [241] = { fg = "Special" },
+        activeBorderColor = { fg = "MatchParen", bold = true },
+        cherryPickedCommitBgColor = { bg = "Substitute" },
+        cherryPickedCommitFgColor = { fg = "Substitute" },
+        defaultFgColor = { fg = "Normal" },
+        inactiveBorderColor = { fg = "FloatBorder" },
+        markedBaseCommitBgColor = { bg = "CurSearch" },
+        markedBaseCommitFgColor = { fg = "CurSearch" },
+        optionsTextColor = { fg = "Function" },
+        searchingActiveBorderColor = { fg = "MatchParen", bold = true },
+        selectedLineBgColor = { bg = "Visual" }, -- set to `default` to have no background colour
+        unstagedChangesColor = { fg = "DiagnosticError" },
+      },
     },
   },
 }

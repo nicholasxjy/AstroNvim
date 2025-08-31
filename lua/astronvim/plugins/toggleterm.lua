@@ -25,8 +25,14 @@ return {
         if vim.fn.executable "node" == 1 then
           maps.n["<Leader>tn"] = { function() astro.toggle_term_cmd "node" end, desc = "ToggleTerm node" }
         end
-        local gdu = vim.fn.has "mac" == 1 and "gdu-go" or "gdu"
-        if vim.fn.has "win32" == 1 and vim.fn.executable(gdu) ~= 1 then gdu = "gdu_windows_amd64.exe" end
+        local gdu = "gdu"
+        if vim.fn.executable(gdu) ~= 1 then
+          if vim.fn.has "win32" == 1 then
+            gdu = "gdu_windows_amd64.exe"
+          elseif vim.fn.has "mac" == 1 then
+            gdu = "gdu-go"
+          end
+        end
         if vim.fn.executable(gdu) == 1 then
           maps.n["<Leader>tu"] =
             { function() astro.toggle_term_cmd { cmd = gdu, direction = "float" } end, desc = "ToggleTerm gdu" }
@@ -49,6 +55,30 @@ return {
         maps.n["<C-'>"] = { '<Cmd>execute v:count . "ToggleTerm"<CR>', desc = "Toggle terminal" } -- requires terminal that supports binding <C-'>
         maps.t["<C-'>"] = { "<Cmd>ToggleTerm<CR>", desc = "Toggle terminal" } -- requires terminal that supports binding <C-'>
         maps.i["<C-'>"] = { "<Esc><Cmd>ToggleTerm<CR>", desc = "Toggle terminal" } -- requires terminal that supports binding <C-'>
+      end,
+    },
+    {
+      "nvim-neo-tree/neo-tree.nvim",
+      optional = true,
+      opts = function(_, opts)
+        if not opts.commands then opts.commands = {} end
+        if not opts.window then opts.window = {} end
+        if not opts.window.mappings then opts.window.mappings = {} end
+
+        local function toggleterm_in_direction(state, direction)
+          local node = state.tree:get_node()
+          local path = node.type == "file" and node:get_parent_id() or node:get_id()
+          require("toggleterm.terminal").Terminal:new({ dir = path, direction = direction }):toggle()
+        end
+        local prefix = "T"
+        ---@diagnostic disable-next-line: assign-type-mismatch
+        opts.window.mappings[prefix] =
+          { "show_help", nowait = false, config = { title = "New Terminal", prefix_key = prefix } }
+        for suffix, direction in pairs { f = "float", h = "horizontal", v = "vertical" } do
+          local command = "toggleterm_" .. direction
+          opts.commands[command] = function(state) toggleterm_in_direction(state, direction) end
+          opts.window.mappings[prefix .. suffix] = command
+        end
       end,
     },
   },

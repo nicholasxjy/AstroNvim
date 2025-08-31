@@ -1,6 +1,6 @@
 local function formatting_enabled(client)
   local formatting_disabled = vim.tbl_get(require("astrolsp").config, "formatting", "disabled")
-  return client.supports_method "textDocument/formatting"
+  return require("astrolsp.utils").supports_method(client, "textDocument/formatting")
     and formatting_disabled ~= true
     and not vim.tbl_contains(formatting_disabled, client.name)
 end
@@ -20,7 +20,7 @@ return {
       lsp_codelens_refresh = {
         cond = "textDocument/codeLens",
         {
-          event = { "InsertLeave", "BufEnter" },
+          event = { "TextChanged", "InsertLeave", "BufEnter" },
           desc = "Refresh codelens (buffer)",
           callback = function(args)
             if require("astrolsp").config.features.codelens then vim.lsp.codelens.refresh { bufnr = args.buf } end

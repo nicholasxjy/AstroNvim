@@ -52,10 +52,19 @@ return {
       end,
     },
   },
-  opts = function()
+  opts = function(_, opts)
     local status = require "astroui.status"
     local ui_config = require("astroui").config
-    return {
+    local cached_func = function(func, ...)
+      local cached
+      local args = { ... }
+      return function(self)
+        if cached == nil then cached = func(unpack(args)) end
+        if type(cached) == "function" then return cached(self) end
+        return cached
+      end
+    end
+    return require("astrocore").extend_tbl(opts, {
       opts = {
         colors = require("astroui").config.status.setup_colors(),
         disable_winbar_cb = function(args)
@@ -89,16 +98,16 @@ return {
           condition = function() return not status.condition.is_active() end,
           status.component.separated_path(),
           status.component.file_info {
-            file_icon = { hl = status.hl.file_icon "winbar", padding = { left = 0 } },
+            file_icon = { hl = cached_func(status.hl.file_icon, "winbar"), padding = { left = 0 } },
             filename = {},
             filetype = false,
             file_read_only = false,
-            hl = status.hl.get_attributes("winbarnc", true),
+            hl = cached_func(status.hl.get_attributes, "winbarnc", true),
             surround = false,
-            update = "BufEnter",
+            update = { "BufEnter", "BufFilePost" },
           },
         },
-        status.component.breadcrumbs { hl = status.hl.get_attributes("winbar", true) },
+        status.component.breadcrumbs { hl = cached_func(status.hl.get_attributes, "winbar", true) },
       },
       tabline = { -- bufferline
         { -- automatic sidebar padding
@@ -121,7 +130,7 @@ return {
           },
           { -- close button for current tab
             provider = status.provider.close_button { kind = "TabClose", padding = { left = 1, right = 1 } },
-            hl = status.hl.get_attributes("tab_close", true),
+            hl = cached_func(status.hl.get_attributes, "tab_close", true),
             on_click = {
               callback = function() require("astrocore.buffer").close_tab() end,
               name = "heirline_tabline_close_tab_callback",
@@ -135,6 +144,6 @@ return {
         status.component.numbercolumn(),
         status.component.signcolumn(),
       },
-    }
+    })
   end,
 }

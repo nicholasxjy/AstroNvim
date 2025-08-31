@@ -3,11 +3,15 @@ return {
   ---@param opts AstroCoreOpts
   opts = function(_, opts)
     local opt = {}
+
+    if vim.fn.has "nvim-0.11" == 1 then
+      -- TODO: remove check when dropping support for Neovim v0.10
+      opt.tabclose = "uselast" -- go to last used tab when closing the current tab
+    end
+
     opt.backspace = vim.list_extend(vim.opt.backspace:get(), { "nostop" }) -- don't stop backspace at insert
     opt.breakindent = true -- wrap indent to match  line start
-    if not vim.env.SSH_TTY or vim.fn.has "nvim-0.10" ~= 1 then -- only set `clipboard` if in SSH session and in neovim 0.10+
-      opt.clipboard = "unnamedplus" -- connection to the system clipboard
-    end
+    opt.clipboard = "unnamedplus" -- connection to the system clipboard
     opt.cmdheight = 0 -- hide command line unless needed
     opt.completeopt = { "menu", "menuone", "noselect" } -- Options for insert mode completion
     opt.confirm = true -- raise a dialog asking if you wish to save the current file(s)
@@ -16,10 +20,6 @@ return {
     opt.diffopt = vim.list_extend(vim.opt.diffopt:get(), { "algorithm:histogram", "linematch:60" }) -- enable linematch diff algorithm
     opt.expandtab = true -- enable the use of space in tab
     opt.fillchars = { eob = " " } -- disable `~` on nonexistent lines
-    opt.foldcolumn = "1" -- show foldcolumn
-    opt.foldenable = true -- enable fold for nvim-ufo
-    opt.foldlevel = 99 -- set high foldlevel for nvim-ufo
-    opt.foldlevelstart = 99 -- start with all code unfolded
     opt.ignorecase = true -- case insensitive searching
     opt.infercase = true -- infer cases in keyword completion
     opt.jumpoptions = {} -- apply no jumpoptions on startup
@@ -32,7 +32,7 @@ return {
     opt.relativenumber = true -- show relative numberline
     opt.shiftround = true -- round indentation with `>`/`<` to shiftwidth
     opt.shiftwidth = 0 -- number of space inserted for indentation; when zero the 'tabstop' value will be used
-    opt.shortmess = vim.tbl_deep_extend("force", vim.opt.shortmess:get(), { s = true, I = true }) -- disable search count wrap and startup messages
+    opt.shortmess = vim.tbl_deep_extend("force", vim.opt.shortmess:get(), { s = true, I = true, c = true, C = true }) -- disable search count wrap, startup messages, and completion messages
     opt.showmode = false -- disable showing modes in command line
     opt.showtabline = 2 -- always display tabline
     opt.signcolumn = "yes" -- always show the sign column
@@ -45,7 +45,6 @@ return {
     opt.title = true -- set terminal title to the filename and path
     opt.undofile = true -- enable persistent undo
     opt.updatetime = 300 -- length of time to wait before triggering the plugin
-    opt.viewoptions = vim.tbl_filter(function(val) return val ~= "curdir" end, vim.opt.viewoptions:get())
     opt.virtualedit = "block" -- allow going past end of line in visual block mode
     opt.wrap = false -- disable wrapping of lines longer than the width of window
     opt.writebackup = false -- disable making a backup before overwriting a file

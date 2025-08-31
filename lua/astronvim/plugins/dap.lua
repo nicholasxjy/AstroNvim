@@ -60,10 +60,10 @@ return {
     {
       "jay-babu/mason-nvim-dap.nvim",
       dependencies = { "nvim-dap", "williamboman/mason.nvim" },
-      init = function(plugin) require("astrocore").on_load("mason.nvim", plugin.name) end,
       cmd = { "DapInstall", "DapUninstall" },
       opts_extend = { "ensure_installed" },
       opts = { ensure_installed = {}, handlers = {} },
+      config = function(...) require "astronvim.plugins.configs.mason-nvim-dap"(...) end,
     },
     {
       "rcarriga/nvim-dap-ui",
@@ -96,8 +96,25 @@ return {
     {
       "rcarriga/cmp-dap",
       lazy = true,
-      dependencies = { "hrsh7th/nvim-cmp" },
       config = function(...) require "astronvim.plugins.configs.cmp-dap"(...) end,
+      specs = {
+        {
+          "Saghen/blink.cmp",
+          optional = true,
+          specs = { "Saghen/blink.compat", lazy = true, opts = {} },
+          opts = {
+            sources = {
+              providers = {
+                dap = {
+                  name = "dap",
+                  module = "blink.compat.source",
+                  score_offset = 100,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   },
   config = function(...) require "astronvim.plugins.configs.nvim-dap"(...) end,
